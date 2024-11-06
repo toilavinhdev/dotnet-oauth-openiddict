@@ -1,0 +1,16 @@
+﻿version: '3.8'
+
+volumes:
+  local-postgres-data: {}
+
+services:
+  local-postgres:
+    image: postgres
+    environment:
+      - POSTGRES_DB=local-postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=admin
+    ports:
+      - "5432:5432"
+    volumes:
+      - local-postgres-data:/var/lib/postgresql/data/
