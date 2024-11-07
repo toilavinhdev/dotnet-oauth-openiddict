@@ -1,8 +1,15 @@
+using System.Text.Json.Serialization;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using OpenIddict.Validation.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
+
+services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(o =>
+{
+    o.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+});
 
 services.AddEndpointsApiExplorer();
 services.AddSwaggerGen(c =>
@@ -42,6 +49,9 @@ services.AddOpenIddict()
         o.SetIssuer("https://localhost:7001");
         o.AddAudiences("resource_server_1");
 
+        o.AddEncryptionKey(new SymmetricSecurityKey(
+            Convert.FromBase64String("DRjd/GnduI3Efzen9V9BvbNUfc/VKgXltV7Kbk9sMkY=")));
+
         o.UseSystemNetHttp();
 
         o.UseAspNetCore();
@@ -58,11 +68,11 @@ app.UseAuthorization();
 app.UseSwagger();
 app.UseSwaggerUI(o =>
 {
-    o.OAuthClientId("web-client");
-    o.OAuthClientSecret("901564A5-E7FE-42CB-B10D-61EF6A8F3654");
+    o.OAuthClientId("client");
+    o.OAuthClientSecret("client-secret");
 });
 
-app.MapGet("/api/me", (HttpContext context) => context.User)
+app.MapGet("/api/me", (HttpContext context) => context.User.Identity)
    .RequireAuthorization();
 
 app.Run();
